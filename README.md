@@ -18,7 +18,7 @@ MiniBank API is a simple banking system that allows users to perform transaction
 
 ## Setup and Running the Project
 ### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - [Docker & Docker Compose](https://www.docker.com/get-started)
 
 ### Running the Application
