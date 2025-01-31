@@ -1,0 +1,14 @@
+﻿namespace MiniBank.Api.Infrastructure.Services;
+
+internal class NotificationService(HttpClient httpClient) : INotificationService
+{
+    private readonly HttpClient _httpClient = httpClient;
+
+    public async Task Notify()
+    {
+        var requestUri = new Uri("notify", UriKind.Relative);
+
+        HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+        response.EnsureSuccessStatusCode();
+    }
+}

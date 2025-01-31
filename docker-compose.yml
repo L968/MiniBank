@@ -1,0 +1,41 @@
+services:
+  minibank.api:
+    image: ${DOCKER_REGISTRY-}minibank.api
+    container_name: minibank.api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: src/MiniBank.Api/Dockerfile
+    ports:
+      - 5000:8080
+    networks:
+      - minibank-bridge
+    depends_on:
+      minibank.mysql:
+        condition: service_healthy
+
+  minibank.mysql:
+    image: mysql:8.4.0
+    container_name: minibank.mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: minibank
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - minibank-bridge
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      retries: 5
+      interval: 5s
+      timeout: 30s
+
+volumes:
+  mysql-data:
+
+networks:
+  minibank-bridge:
+    driver: bridge
