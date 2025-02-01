@@ -16,9 +16,9 @@ internal sealed class GetTransactionsByUserIdHandler(
 
         return transactions.Select(t => new GetTransactionsByUserIdResponse(
             t.Id,
-            t.SenderId,
-            t.ReceiverId,
-            t.Amount,
+            t.PayerId,
+            t.PayeeId,
+            t.Value,
             t.Timestamp,
             t.Status
         ));

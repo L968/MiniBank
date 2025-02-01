@@ -15,16 +15,16 @@ internal class TransactionRepository : ITransactionRepository
     public async Task<Transaction?> GetByIdAsync(Guid transactionId, CancellationToken cancellationToken)
     {
         return await _context.Transactions
-            .Include(t => t.Sender)
-            .Include(t => t.Receiver)
+            .Include(t => t.Payer)
+            .Include(t => t.Payee)
             .FirstOrDefaultAsync(t => t.Id == transactionId, cancellationToken);
     }
 
     // Add Pagination!
-    public async Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Transaction>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
     {
         return await _context.Transactions
-            .Where(t => t.SenderId == userId || t.ReceiverId == userId)
+            .Where(t => t.PayerId == userId || t.PayeeId == userId)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

@@ -3,33 +3,33 @@
 internal sealed class Transaction
 {
     public Guid Id { get; private set; }
-    public Guid SenderId { get; private set; }
-    public Guid ReceiverId { get; private set; }
-    public decimal Amount { get; private set; }
+    public int PayerId { get; private set; }
+    public int PayeeId { get; private set; }
+    public decimal Value { get; private set; }
     public DateTime Timestamp { get; private set; }
     public TransactionStatus Status { get; private set; }
 
-    public User Sender { get; private set; }
-    public User Receiver { get; private set; }
+    public User Payer { get; private set; }
+    public User Payee { get; private set; }
 
     private Transaction() { }
 
-    public Transaction(User sender, User receiver, decimal amount)
+    public Transaction(User payer, User payee, decimal value)
     {
-        if (amount <= 0)
+        if (value <= 0)
         {
-            throw new AppException("Invalid amount.");
+            throw new AppException("Invalid value.");
         }
 
-        Id = Guid.NewGuid();
-        SenderId = sender.Id;
-        ReceiverId = receiver.Id;
-        Amount = amount;
+        Id = Guid.CreateVersion7();
+        PayerId = payer.Id;
+        PayeeId = payee.Id;
+        Value = value;
         Timestamp = DateTime.UtcNow;
         Status = TransactionStatus.Pending;
 
-        Sender = sender;
-        Receiver = receiver;
+        Payer = payer;
+        Payee = payee;
     }
 
     public void Execute()
@@ -41,9 +41,9 @@ internal sealed class Transaction
 
         try
         {
-            Sender.ValidateCanSendMoney(Amount);
-            Sender.Debit(Amount);
-            Receiver.Credit(Amount);
+            Payer.ValidateCanTransfer(Value);
+            Payer.Debit(Value);
+            Payee.Credit(Value);
             Status = TransactionStatus.Completed;
         }
         catch (AppException)
@@ -70,8 +70,8 @@ internal sealed class Transaction
             throw new AppException("Only completed transactions can be reverted.");
         }
 
-        Sender.Credit(Amount);
-        Receiver.Debit(Amount);
+        Payer.Credit(Value);
+        Payee.Debit(Value);
 
         Status = TransactionStatus.Reverted;
     }

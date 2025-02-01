@@ -4,9 +4,9 @@ namespace MiniBank.Api.Features.Transactions.Queries.GetTransactionsByUserId;
 
 internal sealed record GetTransactionsByUserIdResponse(
     Guid Id,
-    Guid SenderId,
-    Guid ReceiverId,
-    decimal Amount,
+    int PayerId,
+    int PayeeId,
+    decimal Value,
     DateTime Timestamp,
     TransactionStatus Status
 );

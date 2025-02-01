@@ -9,11 +9,11 @@ public class TransactionTests
     public void ValidateTransaction_ShouldThrowException_WhenAmountIsInvalid()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
 
         // Act & Assert
-        AppException exception = Assert.Throws<AppException>(() => new Transaction(sender, receiver, -100));
+        AppException exception = Assert.Throws<AppException>(() => new Transaction(payer, payee, -100));
         Assert.Equal("Invalid amount.", exception.Message);
     }
 
@@ -21,19 +21,19 @@ public class TransactionTests
     public void CreateTransaction_ShouldCreateTransaction_WhenAmountIsValid()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
 
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
 
         // Act
-        var transaction = new Transaction(sender, receiver, 50);
+        var transaction = new Transaction(payer, payee, 50);
 
         // Assert
         Assert.NotNull(transaction);
-        Assert.Equal(sender.Id, transaction.SenderId);
-        Assert.Equal(receiver.Id, transaction.ReceiverId);
-        Assert.Equal(50, transaction.Amount);
+        Assert.Equal(payer.Id, transaction.PayerId);
+        Assert.Equal(payee.Id, transaction.PayeeId);
+        Assert.Equal(50, transaction.Value);
         Assert.Equal(TransactionStatus.Pending, transaction.Status);
     }
 
@@ -41,19 +41,19 @@ public class TransactionTests
     public void ExecuteTransaction_ShouldExecuteTransaction_WhenValid()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
-        receiver.Credit(50);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        payee.Credit(50);
 
-        var transaction = new Transaction(sender, receiver, 50);
+        var transaction = new Transaction(payer, payee, 50);
 
         // Act
         transaction.Execute();
 
         // Assert
-        Assert.Equal(150, sender.Balance);
-        Assert.Equal(100, receiver.Balance);
+        Assert.Equal(150, payer.Balance);
+        Assert.Equal(100, payee.Balance);
         Assert.Equal(TransactionStatus.Completed, transaction.Status);
     }
 
@@ -61,10 +61,10 @@ public class TransactionTests
     public void ExecuteTransaction_ShouldThrowException_WhenTransactionIsNotPending()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
-        var transaction = new Transaction(sender, receiver, 50);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        var transaction = new Transaction(payer, payee, 50);
         transaction.Execute();
 
         // Act & Assert
@@ -76,10 +76,10 @@ public class TransactionTests
     public void FailTransaction_ShouldFailTransaction_WhenTransactionIsPending()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
-        var transaction = new Transaction(sender, receiver, 50);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        var transaction = new Transaction(payer, payee, 50);
 
         // Act
         transaction.Fail();
@@ -92,10 +92,10 @@ public class TransactionTests
     public void FailTransaction_ShouldThrowException_WhenTransactionIsNotPending()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
-        var transaction = new Transaction(sender, receiver, 50);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        var transaction = new Transaction(payer, payee, 50);
         transaction.Execute();
 
         // Act & Assert
@@ -107,20 +107,20 @@ public class TransactionTests
     public void RevertTransaction_ShouldRevertTransaction_WhenTransactionIsCompleted()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
 
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
 
-        var transaction = new Transaction(sender, receiver, 50);
+        var transaction = new Transaction(payer, payee, 50);
         transaction.Execute();
 
         // Act
         transaction.Revert();
 
         // Assert
-        Assert.Equal(200, sender.Balance);
-        Assert.Equal(0, receiver.Balance);
+        Assert.Equal(200, payer.Balance);
+        Assert.Equal(0, payee.Balance);
         Assert.Equal(TransactionStatus.Reverted, transaction.Status);
     }
 
@@ -128,10 +128,10 @@ public class TransactionTests
     public void RevertTransaction_ShouldThrowException_WhenTransactionIsNotCompleted()
     {
         // Arrange
-        var sender = new User("Sender", "12345678901", "sender@example.com", "passwordHash", UserType.Common);
-        sender.Credit(200);
-        var receiver = new User("Receiver", "98765432100", "receiver@example.com", "passwordHash", UserType.Common);
-        var transaction = new Transaction(sender, receiver, 50);
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(200);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        var transaction = new Transaction(payer, payee, 50);
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(transaction.Revert);

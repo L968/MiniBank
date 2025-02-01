@@ -26,12 +26,12 @@ public class RevertTransactionTests
     public async Task ShouldRevertTransaction_WhenTransactionExistsAndIsCompleted()
     {
         // Arrange
-        var sender = new User("Sender Name", "12345678901", "sender@example.com", "hashedPassword", UserType.Common);
-        sender.Credit(100);
+        var payer = new User("Payer Name", "12345678901", "payer@example.com", "hashedPassword", UserType.Common);
+        payer.Credit(100);
 
-        var receiver = new User("Receiver Name", "98765432100", "receiver@example.com", "hashedPassword", UserType.Common);
+        var payee = new User("Payee Name", "98765432100", "payee@example.com", "hashedPassword", UserType.Common);
 
-        var transaction = new Transaction(sender, receiver, 100);
+        var transaction = new Transaction(payer, payee, 100);
         transaction.Execute();
 
         _repositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, It.IsAny<CancellationToken>()))
@@ -66,10 +66,10 @@ public class RevertTransactionTests
     {
         // Arrange
         var transactionId = Guid.NewGuid();
-        var sender = new User("Sender Name", "12345678901", "sender@example.com", "hashedPassword", UserType.Common);
-        var receiver = new User("Receiver Name", "98765432100", "receiver@example.com", "hashedPassword", UserType.Common);
+        var payer = new User("Payer Name", "12345678901", "payer@example.com", "hashedPassword", UserType.Common);
+        var payee = new User("Payee Name", "98765432100", "payee@example.com", "hashedPassword", UserType.Common);
 
-        var transaction = new Transaction(sender, receiver, 100);
+        var transaction = new Transaction(payer, payee, 100);
         _repositoryMock.Setup(x => x.GetByIdAsync(transactionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(transaction);
 

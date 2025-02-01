@@ -25,7 +25,7 @@ public class GetUserByIdTests
     public async Task ShouldReturnUser_WhenUserExists()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        int userId = 1;
         var user = new User("John Doe", "12345678900", "john@example.com", "hashedPassword", UserType.Common);
 
         _repositoryMock
@@ -48,7 +48,7 @@ public class GetUserByIdTests
     public async Task ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        int userId = 1;
         _repositoryMock
             .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User)null);

@@ -6,13 +6,16 @@ internal class AuthorizationService(HttpClient httpClient) : IAuthorizationServi
 
     public async Task<bool> IsTransactionAuthorizedAsync()
     {
-        var requestUri = new Uri("authorize", UriKind.Relative);
+        var requestUri = new Uri("v2/authorize", UriKind.Relative);
 
         HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            return false;
+        }
+
         response.EnsureSuccessStatusCode();
-
-        string? content = await response.Content.ReadAsStringAsync();
-
-        return content == null;
+        return true;
     }
 }

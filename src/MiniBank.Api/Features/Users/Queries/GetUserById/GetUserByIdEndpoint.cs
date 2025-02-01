@@ -6,7 +6,7 @@ internal sealed class GetUserByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("user/{id}", async (Guid id, ISender sender) =>
+        app.MapGet("user/{id}", async (int id, ISender sender) =>
         {
             var query = new GetUserByIdQuery(id);
             GetUserByIdResponse response = await sender.Send(query);

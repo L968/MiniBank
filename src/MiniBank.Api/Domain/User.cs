@@ -2,7 +2,7 @@
 
 internal sealed class User
 {
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
     public string FullName { get; private set; }
     public string CpfCnpj { get; private set; }
     public string Email { get; private set; }
@@ -20,7 +20,6 @@ internal sealed class User
         UserType type
     )
     {
-        Id = Guid.CreateVersion7();
         FullName = fullName;
         CpfCnpj = cpfCnpj;
         Email = email;
@@ -29,41 +28,41 @@ internal sealed class User
         Balance = 0;
     }
 
-    public void ValidateCanSendMoney(decimal amount)
+    public void ValidateCanTransfer(decimal value)
     {
         if (Type != UserType.Common)
         {
             throw new AppException("Only Common users are allowed to send money.");
         }
 
-        if (Balance < amount)
+        if (Balance < value)
         {
             throw new AppException($"Insufficient balance. Current balance: {Balance:C}.");
         }
     }
 
-    public void Debit(decimal amount)
+    public void Debit(decimal value)
     {
-        if (amount <= 0)
+        if (value <= 0)
         {
-            throw new AppException("Invalid amount.");
+            throw new AppException("Invalid value.");
         }
 
-        if (Balance < amount)
+        if (Balance < value)
         {
             throw new AppException("Insufficient balance.");
         }
 
-        Balance -= amount;
+        Balance -= value;
     }
 
-    public void Credit(decimal amount)
+    public void Credit(decimal value)
     {
-        if (amount <= 0)
+        if (value <= 0)
         {
-            throw new AppException("Invalid amount.");
+            throw new AppException("Invalid value.");
         }
 
-        Balance += amount;
+        Balance += value;
     }
 }

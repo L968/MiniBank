@@ -3,7 +3,7 @@
 namespace MiniBank.Api.Features.Users.Commands.CreateUser;
 
 internal sealed record CreateUserResponse(
-    Guid Id,
+    int Id,
     string FullName,
     string CpfCnpj,
     string Email,

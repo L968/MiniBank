@@ -23,15 +23,15 @@ public class GetTransactionsByUserIdTests
     public async Task ShouldReturnTransactions_WhenTransactionsExist()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        int userId = 1;
 
-        var sender1 = new User("Sender1", "11111111111", "sender1@example.com", "hashedPassword", UserType.Common);
-        var receiver1 = new User("Receiver1", "22222222222", "receiver1@example.com", "hashedPassword", UserType.Common);
-        var transaction1 = new Transaction(sender1, receiver1, 100);
+        var payer1 = new User("Payer1", "11111111111", "payer1@example.com", "hashedPassword", UserType.Common);
+        var payee1 = new User("Payee1", "22222222222", "payee1@example.com", "hashedPassword", UserType.Common);
+        var transaction1 = new Transaction(payer1, payee1, 100);
 
-        var sender2 = new User("Sender2", "33333333333", "sender2@example.com", "hashedPassword", UserType.Common);
-        var receiver2 = new User("Receiver2", "44444444444", "receiver2@example.com", "hashedPassword", UserType.Common);
-        var transaction2 = new Transaction(sender2, receiver2, 200);
+        var payer2 = new User("Payer2", "33333333333", "payer2@example.com", "hashedPassword", UserType.Common);
+        var payee2 = new User("Payee2", "44444444444", "payee2@example.com", "hashedPassword", UserType.Common);
+        var transaction2 = new Transaction(payer2, payee2, 200);
 
         var transactions = new List<Transaction> { transaction1, transaction2 };
 
@@ -52,9 +52,9 @@ public class GetTransactionsByUserIdTests
         for (int i = 0; i < transactions.Count; i++)
         {
             Assert.Equal(transactions[i].Id, resultList[i].Id);
-            Assert.Equal(transactions[i].SenderId, resultList[i].SenderId);
-            Assert.Equal(transactions[i].ReceiverId, resultList[i].ReceiverId);
-            Assert.Equal(transactions[i].Amount, resultList[i].Amount);
+            Assert.Equal(transactions[i].PayerId, resultList[i].PayerId);
+            Assert.Equal(transactions[i].PayeeId, resultList[i].PayeeId);
+            Assert.Equal(transactions[i].Value, resultList[i].Value);
             Assert.Equal(transactions[i].Timestamp, resultList[i].Timestamp);
             Assert.Equal(transactions[i].Status, resultList[i].Status);
         }
@@ -64,7 +64,7 @@ public class GetTransactionsByUserIdTests
     public async Task ShouldReturnEmpty_WhenNoTransactionsFound()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        int userId = 1;
         var emptyTransactions = new List<Transaction>();
 
         _transactionRepositoryMock
