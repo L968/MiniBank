@@ -1,14 +1,14 @@
 ﻿using MiniBank.Api.Domain;
+using MiniBank.Api.Domain.Events;
+using MiniBank.Api.Infrastructure.EventBus;
 using MiniBank.Api.Infrastructure.Repositories.Interfaces;
-using MiniBank.Api.Infrastructure.Services;
 
 namespace MiniBank.Api.Features.Transactions.Commands.Transfer;
 
 internal sealed class TransferHandler(
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
-    IAuthorizationService authorizationService,
-    INotificationService notificationService,
+    IRabbitMQService rabbitMqService,
     IUnitOfWork unitOfWork,
     ILogger<TransferHandler> logger
 ) : IRequestHandler<TransferCommand, TransferResponse>
@@ -28,32 +28,13 @@ internal sealed class TransferHandler(
         }
 
         var transaction = new Transaction(payer, payee, request.Value);
-
-        bool isTransactionAuthorized = await authorizationService.IsTransactionAuthorizedAsync();
-
-        if (isTransactionAuthorized)
-        {
-            transaction.Execute();
-            logger.LogInformation("Transaction completed successfully: TransactionId: {TransactionId}", transaction.Id);
-        }
-        else
-        {
-            transaction.Fail();
-            logger.LogError("Transaction authorization failed for TransactionId: {TransactionId}", transaction.Id);
-        }
-
         transactionRepository.Create(transaction);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        try
-        {
-            await notificationService.Notify();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Notification failed for transaction {TransactionId}. PayerId: {PayerId}, PayeeId: {PayeeId}",
-                transaction.Id, payer.Id, payee.Id);
-        }
+        var transactionEvent = new TransactionEvent(transaction.Id);
+        await rabbitMqService.PublishAsync(transactionEvent, cancellationToken);
+
+        logger.LogInformation("Transaction published successfully: TransactionId: {TransactionId}", transaction.Id);
 
         return new TransferResponse(
             payer.Id,

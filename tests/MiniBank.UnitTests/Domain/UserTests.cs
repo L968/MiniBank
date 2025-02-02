@@ -25,7 +25,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.ValidateCanTransfer(100));
-        Assert.Equal("Insufficient balance. Current balance: R$ 50,00.", exception.Message);
+        Assert.Equal("Insufficient balance.", exception.Message);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.Debit(-50));
-        Assert.Equal("Invalid amount.", exception.Message);
+        Assert.Equal("Invalid value.", exception.Message);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.Credit(-50));
-        Assert.Equal("Invalid amount.", exception.Message);
+        Assert.Equal("Invalid value.", exception.Message);
     }
 
     [Fact]

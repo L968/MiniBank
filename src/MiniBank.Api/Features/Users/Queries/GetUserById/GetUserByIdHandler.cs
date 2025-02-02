@@ -24,6 +24,7 @@ internal sealed class GetUserByIdHandler(
             user.FullName,
             user.CpfCnpj,
             user.Email,
+            user.Balance,
             user.Type
         );
     }

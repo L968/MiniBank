@@ -33,6 +33,20 @@ services:
       interval: 5s
       timeout: 30s
 
+  rabbitmq:
+    image: rabbitmq:4.0.5-management
+    container_name: minibank.rabbitmq
+    networks:
+    - minibank-bridge
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      retries: 5
+      interval: 5s
+      timeout: 30s
+
 volumes:
   mysql-data:
 

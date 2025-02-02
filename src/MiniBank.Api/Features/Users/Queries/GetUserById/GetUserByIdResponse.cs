@@ -7,5 +7,6 @@ internal sealed record GetUserByIdResponse(
     string FullName,
     string CpfCnpj,
     string Email,
+    decimal Balance,
     UserType Type
 );

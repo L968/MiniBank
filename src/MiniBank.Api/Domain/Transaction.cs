@@ -2,12 +2,13 @@
 
 internal sealed class Transaction
 {
-    public Guid Id { get; private set; }
-    public int PayerId { get; private set; }
-    public int PayeeId { get; private set; }
-    public decimal Value { get; private set; }
-    public DateTime Timestamp { get; private set; }
+    public Guid Id { get; init; }
+    public int PayerId { get; init; }
+    public int PayeeId { get; init; }
+    public decimal Value { get; init; }
+    public DateTime Timestamp { get; init; }
     public TransactionStatus Status { get; private set; }
+    public string Message { get; private set; }
 
     public User Payer { get; private set; }
     public User Payee { get; private set; }
@@ -27,12 +28,13 @@ internal sealed class Transaction
         Value = value;
         Timestamp = DateTime.UtcNow;
         Status = TransactionStatus.Pending;
+        Message = "";
 
         Payer = payer;
         Payee = payee;
     }
 
-    public void Execute()
+    public void Process()
     {
         if (Status != TransactionStatus.Pending)
         {
@@ -42,18 +44,19 @@ internal sealed class Transaction
         try
         {
             Payer.ValidateCanTransfer(Value);
+
             Payer.Debit(Value);
             Payee.Credit(Value);
             Status = TransactionStatus.Completed;
+            Message = "Transaction competed successfully.";
         }
-        catch (AppException)
+        catch (AppException ex)
         {
-            Status = TransactionStatus.Failed;
-            throw;
+            Fail(ex.Message);
         }
     }
 
-    public void Fail()
+    public void Fail(string message)
     {
         if (Status != TransactionStatus.Pending)
         {
@@ -61,6 +64,7 @@ internal sealed class Transaction
         }
 
         Status = TransactionStatus.Failed;
+        Message = message;
     }
 
     public void Revert()
@@ -74,5 +78,6 @@ internal sealed class Transaction
         Payee.Debit(Value);
 
         Status = TransactionStatus.Reverted;
+        Message = "Transaction reverted.";
     }
 }

@@ -32,7 +32,7 @@ public class RevertTransactionTests
         var payee = new User("Payee Name", "98765432100", "payee@example.com", "hashedPassword", UserType.Common);
 
         var transaction = new Transaction(payer, payee, 100);
-        transaction.Execute();
+        transaction.Process();
 
         _repositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(transaction);

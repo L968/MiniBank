@@ -2,7 +2,7 @@
 
 internal sealed class User
 {
-    public int Id { get; private set; }
+    public int Id { get; init; }
     public string FullName { get; private set; }
     public string CpfCnpj { get; private set; }
     public string Email { get; private set; }
@@ -37,7 +37,7 @@ internal sealed class User
 
         if (Balance < value)
         {
-            throw new AppException($"Insufficient balance. Current balance: {Balance:C}.");
+            throw new AppException($"Insufficient balance.");
         }
     }
 

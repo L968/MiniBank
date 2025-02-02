@@ -14,7 +14,7 @@ public class TransactionTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => new Transaction(payer, payee, -100));
-        Assert.Equal("Invalid amount.", exception.Message);
+        Assert.Equal("Invalid value.", exception.Message);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class TransactionTests
     }
 
     [Fact]
-    public void ExecuteTransaction_ShouldExecuteTransaction_WhenValid()
+    public void ProcessTransaction_ShouldProcessTransaction_WhenValid()
     {
         // Arrange
         var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
@@ -49,7 +49,7 @@ public class TransactionTests
         var transaction = new Transaction(payer, payee, 50);
 
         // Act
-        transaction.Execute();
+        transaction.Process();
 
         // Assert
         Assert.Equal(150, payer.Balance);
@@ -58,18 +58,39 @@ public class TransactionTests
     }
 
     [Fact]
-    public void ExecuteTransaction_ShouldThrowException_WhenTransactionIsNotPending()
+    public void ProcessTransaction_ShouldThrowException_WhenTransactionIsNotPending()
     {
         // Arrange
         var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
         payer.Credit(200);
         var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
         var transaction = new Transaction(payer, payee, 50);
-        transaction.Execute();
+        transaction.Process();
 
         // Act & Assert
-        AppException exception = Assert.Throws<AppException>(transaction.Execute);
+        AppException exception = Assert.Throws<AppException>(transaction.Process);
         Assert.Equal("Only pending transactions can be executed.", exception.Message);
+    }
+
+    [Fact]
+    public void ProcessTransaction_ShouldFail_WhenPayerHasInsufficientBalance()
+    {
+        // Arrange
+        var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
+        payer.Credit(50);
+        var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
+        payee.Credit(50);
+
+        var transaction = new Transaction(payer, payee, 100);
+
+        // Act
+        transaction.Process();
+
+        // Assert
+        Assert.Equal(50, payer.Balance);
+        Assert.Equal(50, payee.Balance);
+        Assert.Equal(TransactionStatus.Failed, transaction.Status);
+        Assert.Equal("Insufficient balance.", transaction.Message);
     }
 
     [Fact]
@@ -82,7 +103,7 @@ public class TransactionTests
         var transaction = new Transaction(payer, payee, 50);
 
         // Act
-        transaction.Fail();
+        transaction.Fail("Failed transaction");
 
         // Assert
         Assert.Equal(TransactionStatus.Failed, transaction.Status);
@@ -96,10 +117,10 @@ public class TransactionTests
         payer.Credit(200);
         var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
         var transaction = new Transaction(payer, payee, 50);
-        transaction.Execute();
+        transaction.Process();
 
         // Act & Assert
-        AppException exception = Assert.Throws<AppException>(transaction.Fail);
+        AppException exception = Assert.Throws<AppException>(() => transaction.Fail("Failed transaction"));
         Assert.Equal("Only pending transactions can fail.", exception.Message);
     }
 
@@ -113,7 +134,7 @@ public class TransactionTests
         var payee = new User("Payee", "98765432100", "payee@example.com", "passwordHash", UserType.Common);
 
         var transaction = new Transaction(payer, payee, 50);
-        transaction.Execute();
+        transaction.Process();
 
         // Act
         transaction.Revert();
