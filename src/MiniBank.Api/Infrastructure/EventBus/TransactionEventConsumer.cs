@@ -1,16 +1,14 @@
 ﻿using MassTransit;
 using MiniBank.Api.Domain;
 using MiniBank.Api.Domain.Events;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
 using MiniBank.Api.Infrastructure.Services;
 
 namespace MiniBank.Api.Infrastructure.EventBus;
 
 internal sealed class TransactionEventConsumer(
-    ITransactionRepository transactionRepository,
+    AppDbContext dbContext,
     IAuthorizationService authorizationService,
     INotificationService notificationService,
-    IUnitOfWork unitOfWork,
     ILogger<TransactionEventConsumer> logger
     ) : IConsumer<TransactionEvent>
 {
@@ -20,7 +18,11 @@ internal sealed class TransactionEventConsumer(
 
         logger.LogInformation("Processing transaction: Id: {Id}", transactionEvent.TransactionId);
 
-        Transaction? transaction = await transactionRepository.GetByIdAsync(transactionEvent.TransactionId, context.CancellationToken);
+        Transaction? transaction = await dbContext.Transactions
+            .Include(t => t.Payer)
+            .Include(t => t.Payee)
+            .FirstOrDefaultAsync(t => t.Id == transactionEvent.TransactionId, context.CancellationToken);
+
         if (transaction is null)
         {
             throw new AppException($"Transaction with ID {transactionEvent.TransactionId} not found.");
@@ -39,7 +41,7 @@ internal sealed class TransactionEventConsumer(
             logger.LogWarning("Transaction authorization failed for TransactionId: {TransactionId}", transaction.Id);
         }
 
-        await unitOfWork.SaveChangesAsync(context.CancellationToken);
+        await dbContext.SaveChangesAsync(context.CancellationToken);
 
         try
         {

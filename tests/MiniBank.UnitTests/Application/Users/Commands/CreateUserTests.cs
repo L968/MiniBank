@@ -2,25 +2,24 @@
 using Moq;
 using MiniBank.Api.Domain;
 using MiniBank.Api.Features.Users.Commands.CreateUser;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
+using MiniBank.Api.Infrastructure;
 using MiniBank.Api.Exceptions;
+using MiniBank.UnitTests.Application.Fixtures;
 
 namespace MiniBank.UnitTests.Application.Users.Commands;
 
-public class CreateUserTests
+public class CreateUserTests : IClassFixture<AppDbContextFixture>
 {
-    private readonly Mock<IUserRepository> _repositoryMock;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly AppDbContext _dbContext;
     private readonly Mock<ILogger<CreateUserHandler>> _loggerMock;
     private readonly CreateUserHandler _handler;
 
-    public CreateUserTests()
+    public CreateUserTests(AppDbContextFixture fixture)
     {
-        _repositoryMock = new Mock<IUserRepository>();
-        _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _loggerMock = new Mock<ILogger<CreateUserHandler>>();
+        _dbContext = fixture.DbContext;
 
-        _handler = new CreateUserHandler(_repositoryMock.Object, _unitOfWorkMock.Object, _loggerMock.Object);
+        _loggerMock = new Mock<ILogger<CreateUserHandler>>();
+        _handler = new CreateUserHandler(_dbContext, _loggerMock.Object);
     }
 
     [Fact]
@@ -35,14 +34,6 @@ public class CreateUserTests
             Type: UserType.Common
         );
 
-        _repositoryMock
-            .Setup(x => x.GetByCpfCnpjAsync(command.CpfCnpj, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
-
-        _repositoryMock
-            .Setup(x => x.GetByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
-
         // Act
         CreateUserResponse result = await _handler.Handle(command, CancellationToken.None);
 
@@ -52,8 +43,12 @@ public class CreateUserTests
         Assert.Equal(command.CpfCnpj, result.CpfCnpj);
         Assert.Equal(command.Email, result.Email);
 
-        _repositoryMock.Verify(x => x.Create(It.IsAny<User>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        User? createdUser = await _dbContext.Users.FindAsync(result.Id);
+        Assert.NotNull(createdUser);
+        Assert.Equal(command.FullName, createdUser.FullName);
+        Assert.Equal(command.CpfCnpj, createdUser.CpfCnpj);
+        Assert.Equal(command.Email, createdUser.Email);
+        Assert.Equal(command.Type, createdUser.Type);
     }
 
     [Fact]
@@ -69,10 +64,8 @@ public class CreateUserTests
         );
 
         var existingUser = new User("Jane Doe", command.CpfCnpj, "jane@example.com", "hashedPassword", UserType.Common);
-
-        _repositoryMock
-            .Setup(x => x.GetByCpfCnpjAsync(command.CpfCnpj, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingUser);
+        _dbContext.Users.Add(existingUser);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         AppException exception = await Assert.ThrowsAsync<AppException>(() => _handler.Handle(command, CancellationToken.None));
@@ -92,14 +85,8 @@ public class CreateUserTests
         );
 
         var existingUser = new User("Jane Doe", "09876543210", command.Email, "hashedPassword", UserType.Common);
-
-        _repositoryMock
-            .Setup(x => x.GetByCpfCnpjAsync(command.CpfCnpj, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
-
-        _repositoryMock
-            .Setup(x => x.GetByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingUser);
+        _dbContext.Users.Add(existingUser);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         AppException exception = await Assert.ThrowsAsync<AppException>(() => _handler.Handle(command, CancellationToken.None));

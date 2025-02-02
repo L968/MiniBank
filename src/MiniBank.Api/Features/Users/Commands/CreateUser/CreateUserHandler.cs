@@ -1,24 +1,27 @@
 ﻿using MiniBank.Api.Domain;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
+using MiniBank.Api.Infrastructure;
 
 namespace MiniBank.Api.Features.Users.Commands.CreateUser;
 
 internal sealed class CreateUserHandler(
-    IUserRepository repository,
-    IUnitOfWork unitOfWork,
+    AppDbContext dbContext,
     ILogger<CreateUserHandler> logger
 ) : IRequestHandler<CreateUserCommand, CreateUserResponse>
 {
     public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        User existingUserByCpfCnpj = await repository.GetByCpfCnpjAsync(request.CpfCnpj, cancellationToken);
+        User existingUserByCpfCnpj = await dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.CpfCnpj == request.CpfCnpj, cancellationToken);
 
         if (existingUserByCpfCnpj is not null)
         {
             throw new AppException($"A user with CPF/CNPJ \"{request.CpfCnpj}\" already exists");
         }
 
-        User existingUserByEmail = await repository.GetByEmailAsync(request.Email, cancellationToken);
+        User existingUserByEmail = await dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (existingUserByEmail is not null)
         {
@@ -35,8 +38,8 @@ internal sealed class CreateUserHandler(
             request.Type
         );
 
-        repository.Create(user);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Successfully created {@User}", user);
 

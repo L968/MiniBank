@@ -4,8 +4,6 @@ using Evently.Common.Application.Behaviors;
 using MassTransit;
 using MiniBank.Api.Behaviours;
 using MiniBank.Api.Infrastructure.EventBus;
-using MiniBank.Api.Infrastructure.Repositories;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
 
 namespace MiniBank.Api.Infrastructure.Extensions;
 
@@ -25,16 +23,13 @@ internal static class ApplicationServiceExtensions
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         ValidatorOptions.Global.LanguageManager.Culture = CultureInfo.InvariantCulture;
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ITransactionRepository, TransactionRepository>();
-        services.AddScoped<IRabbitMQService, RabbitMQService>();
-
         return services;
     }
 
     private static void AddRabbitMQService(this IServiceCollection services)
     {
+        services.AddScoped<IRabbitMQService, RabbitMQService>();
+
         services.AddMassTransit(config =>
         {
             config.AddConsumer<TransactionEventConsumer>();

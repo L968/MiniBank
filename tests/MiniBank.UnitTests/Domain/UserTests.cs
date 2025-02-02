@@ -13,7 +13,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.ValidateCanTransfer(100));
-        Assert.Equal("Only Common users are allowed to send money.", exception.Message);
+        Assert.Equal(DomainErrors.User.OnlyCommonUsersCanSendMoney, exception.Message);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.ValidateCanTransfer(100));
-        Assert.Equal("Insufficient balance.", exception.Message);
+        Assert.Equal(DomainErrors.User.InsufficientBalance, exception.Message);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.Debit(-50));
-        Assert.Equal("Invalid value.", exception.Message);
+        Assert.Equal(DomainErrors.User.InvalidValue, exception.Message);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.Debit(100));
-        Assert.Equal("Insufficient balance.", exception.Message);
+        Assert.Equal(DomainErrors.User.InsufficientBalance, exception.Message);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class UserTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => user.Credit(-50));
-        Assert.Equal("Invalid value.", exception.Message);
+        Assert.Equal(DomainErrors.User.InvalidValue, exception.Message);
     }
 
     [Fact]

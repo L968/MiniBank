@@ -1,17 +1,20 @@
 ﻿using MiniBank.Api.Domain;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
+using MiniBank.Api.Infrastructure;
 
 namespace MiniBank.Api.Features.Transactions.Commands.RevertTransaction;
 
 internal sealed class RevertTransactionHandler(
-    ITransactionRepository transactionRepository,
-    IUnitOfWork unitOfWork,
+    AppDbContext dbContext,
     ILogger<RevertTransactionHandler> logger
 ) : IRequestHandler<RevertTransactionCommand>
 {
     public async Task Handle(RevertTransactionCommand request, CancellationToken cancellationToken)
     {
-        Transaction? transaction = await transactionRepository.GetByIdAsync(request.TransactionId, cancellationToken);
+        Transaction? transaction = await dbContext.Transactions
+            .Include(t => t.Payer)
+            .Include(t => t.Payee)
+            .FirstOrDefaultAsync(t => t.Id == request.TransactionId, cancellationToken);
+
         if (transaction is null)
         {
             throw new AppException($"Transaction with ID {request.TransactionId} not found.");
@@ -19,7 +22,7 @@ internal sealed class RevertTransactionHandler(
 
         transaction.Revert();
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Transaction reverted successfully: TransactionId: {TransactionId}", transaction.Id);
     }

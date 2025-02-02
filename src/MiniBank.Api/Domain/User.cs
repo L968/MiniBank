@@ -32,12 +32,12 @@ internal sealed class User
     {
         if (Type != UserType.Common)
         {
-            throw new AppException("Only Common users are allowed to send money.");
+            throw new AppException(DomainErrors.User.OnlyCommonUsersCanSendMoney);
         }
 
         if (Balance < value)
         {
-            throw new AppException($"Insufficient balance.");
+            throw new AppException(DomainErrors.User.InsufficientBalance);
         }
     }
 
@@ -45,12 +45,12 @@ internal sealed class User
     {
         if (value <= 0)
         {
-            throw new AppException("Invalid value.");
+            throw new AppException(DomainErrors.User.InvalidValue);
         }
 
         if (Balance < value)
         {
-            throw new AppException("Insufficient balance.");
+            throw new AppException(DomainErrors.User.InsufficientBalance);
         }
 
         Balance -= value;
@@ -60,7 +60,7 @@ internal sealed class User
     {
         if (value <= 0)
         {
-            throw new AppException("Invalid value.");
+            throw new AppException(DomainErrors.User.InvalidValue);
         }
 
         Balance += value;

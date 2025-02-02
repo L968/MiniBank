@@ -2,24 +2,23 @@
 using MiniBank.Api.Domain;
 using MiniBank.Api.Exceptions;
 using MiniBank.Api.Features.Transactions.Commands.RevertTransaction;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
+using MiniBank.Api.Infrastructure;
+using MiniBank.UnitTests.Application.Fixtures;
 using Moq;
 
 namespace MiniBank.UnitTests.Application.Transactions.Commands;
 
-public class RevertTransactionTests
+public class RevertTransactionTests : IClassFixture<AppDbContextFixture>
 {
-    private readonly Mock<ITransactionRepository> _repositoryMock;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-    private readonly Mock<ILogger<RevertTransactionHandler>> _loggerMock;
+    private readonly AppDbContext _dbContext;
+    private readonly ILogger<RevertTransactionHandler> _logger;
     private readonly RevertTransactionHandler _handler;
 
-    public RevertTransactionTests()
+    public RevertTransactionTests(AppDbContextFixture fixture)
     {
-        _repositoryMock = new Mock<ITransactionRepository>();
-        _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _loggerMock = new Mock<ILogger<RevertTransactionHandler>>();
-        _handler = new RevertTransactionHandler(_repositoryMock.Object, _unitOfWorkMock.Object, _loggerMock.Object);
+        _dbContext = fixture.DbContext;
+        _logger = new Mock<ILogger<RevertTransactionHandler>>().Object;
+        _handler = new RevertTransactionHandler(_dbContext, _logger);
     }
 
     [Fact]
@@ -27,15 +26,16 @@ public class RevertTransactionTests
     {
         // Arrange
         var payer = new User("Payer Name", "12345678901", "payer@example.com", "hashedPassword", UserType.Common);
-        payer.Credit(100);
-
         var payee = new User("Payee Name", "98765432100", "payee@example.com", "hashedPassword", UserType.Common);
+
+        payer.Credit(100);
 
         var transaction = new Transaction(payer, payee, 100);
         transaction.Process();
 
-        _repositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(transaction);
+        _dbContext.Users.AddRange(payer, payee);
+        _dbContext.Transactions.Add(transaction);
+        await _dbContext.SaveChangesAsync();
 
         var command = new RevertTransactionCommand(transaction.Id);
 
@@ -43,7 +43,8 @@ public class RevertTransactionTests
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(TransactionStatus.Reverted, transaction.Status);
+        Transaction? revertedTransaction = await _dbContext.Transactions.FindAsync(transaction.Id);
+        Assert.Equal(TransactionStatus.Reverted, revertedTransaction!.Status);
     }
 
     [Fact]
@@ -51,9 +52,6 @@ public class RevertTransactionTests
     {
         // Arrange
         var transactionId = Guid.NewGuid();
-        _repositoryMock.Setup(x => x.GetByIdAsync(transactionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Transaction)null);
-
         var command = new RevertTransactionCommand(transactionId);
 
         // Act & Assert
@@ -65,15 +63,16 @@ public class RevertTransactionTests
     public async Task ShouldThrowException_WhenTransactionIsNotCompleted()
     {
         // Arrange
-        var transactionId = Guid.NewGuid();
         var payer = new User("Payer Name", "12345678901", "payer@example.com", "hashedPassword", UserType.Common);
         var payee = new User("Payee Name", "98765432100", "payee@example.com", "hashedPassword", UserType.Common);
 
         var transaction = new Transaction(payer, payee, 100);
-        _repositoryMock.Setup(x => x.GetByIdAsync(transactionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(transaction);
 
-        var command = new RevertTransactionCommand(transactionId);
+        _dbContext.Users.AddRange(payer, payee);
+        _dbContext.Transactions.Add(transaction);
+        await _dbContext.SaveChangesAsync();
+
+        var command = new RevertTransactionCommand(transaction.Id);
 
         // Act & Assert
         AppException exception = await Assert.ThrowsAsync<AppException>(() => _handler.Handle(command, CancellationToken.None));

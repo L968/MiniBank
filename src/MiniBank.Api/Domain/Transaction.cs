@@ -19,7 +19,7 @@ internal sealed class Transaction
     {
         if (value <= 0)
         {
-            throw new AppException("Invalid value.");
+            throw new AppException(DomainErrors.Transaction.InvalidValue);
         }
 
         Id = Guid.CreateVersion7();
@@ -38,7 +38,7 @@ internal sealed class Transaction
     {
         if (Status != TransactionStatus.Pending)
         {
-            throw new AppException("Only pending transactions can be executed.");
+            throw new AppException(DomainErrors.Transaction.OnlyPendingTransactionsCanBeProcessed);
         }
 
         try
@@ -60,7 +60,7 @@ internal sealed class Transaction
     {
         if (Status != TransactionStatus.Pending)
         {
-            throw new AppException("Only pending transactions can fail.");
+            throw new AppException(DomainErrors.Transaction.OnlyPendingTransactionsCanFail);
         }
 
         Status = TransactionStatus.Failed;
@@ -71,7 +71,7 @@ internal sealed class Transaction
     {
         if (Status != TransactionStatus.Completed)
         {
-            throw new AppException("Only completed transactions can be reverted.");
+            throw new AppException(DomainErrors.Transaction.OnlyCompletedTransactionsCanBeReverted);
         }
 
         Payer.Credit(Value);

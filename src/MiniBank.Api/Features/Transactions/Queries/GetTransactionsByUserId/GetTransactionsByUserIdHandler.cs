@@ -1,16 +1,19 @@
 ﻿using MiniBank.Api.Domain;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
+using MiniBank.Api.Infrastructure;
 
 namespace MiniBank.Api.Features.Transactions.Queries.GetTransactionsByUserId;
 
 internal sealed class GetTransactionsByUserIdHandler(
-    ITransactionRepository repository,
+    AppDbContext dbContext,
     ILogger<GetTransactionsByUserIdHandler> logger
 ) : IRequestHandler<GetTransactionsByUserIdQuery, IEnumerable<GetTransactionsByUserIdResponse>>
 {
     public async Task<IEnumerable<GetTransactionsByUserIdResponse>> Handle(GetTransactionsByUserIdQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Transaction> transactions = await repository.GetByUserIdAsync(request.UserId, cancellationToken);
+        IEnumerable<Transaction> transactions = await dbContext.Transactions
+            .AsNoTracking()
+            .Where(t => t.PayerId == request.UserId || t.PayeeId == request.UserId)
+            .ToListAsync(cancellationToken);
 
         logger.LogInformation("Successfully retrieved transactions for user {UserId}", request.UserId);
 

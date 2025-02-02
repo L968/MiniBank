@@ -14,7 +14,7 @@ public class TransactionTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => new Transaction(payer, payee, -100));
-        Assert.Equal("Invalid value.", exception.Message);
+        Assert.Equal(DomainErrors.Transaction.InvalidValue, exception.Message);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class TransactionTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(transaction.Process);
-        Assert.Equal("Only pending transactions can be executed.", exception.Message);
+        Assert.Equal(DomainErrors.Transaction.OnlyPendingTransactionsCanBeProcessed, exception.Message);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class TransactionTests
         Assert.Equal(50, payer.Balance);
         Assert.Equal(50, payee.Balance);
         Assert.Equal(TransactionStatus.Failed, transaction.Status);
-        Assert.Equal("Insufficient balance.", transaction.Message);
+        Assert.Equal(DomainErrors.User.InsufficientBalance, transaction.Message);
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public class TransactionTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(() => transaction.Fail("Failed transaction"));
-        Assert.Equal("Only pending transactions can fail.", exception.Message);
+        Assert.Equal(DomainErrors.Transaction.OnlyPendingTransactionsCanFail, exception.Message);
     }
 
     [Fact]
@@ -156,6 +156,6 @@ public class TransactionTests
 
         // Act & Assert
         AppException exception = Assert.Throws<AppException>(transaction.Revert);
-        Assert.Equal("Only completed transactions can be reverted.", exception.Message);
+        Assert.Equal(DomainErrors.Transaction.OnlyCompletedTransactionsCanBeReverted, exception.Message);
     }
 }

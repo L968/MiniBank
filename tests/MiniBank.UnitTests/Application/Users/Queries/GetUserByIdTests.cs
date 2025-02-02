@@ -1,24 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
-using Moq;
 using MiniBank.Api.Domain;
-using MiniBank.Api.Features.Users.Queries.GetUserById;
-using MiniBank.Api.Infrastructure.Repositories.Interfaces;
 using MiniBank.Api.Exceptions;
+using MiniBank.Api.Features.Users.Queries.GetUserById;
+using MiniBank.Api.Infrastructure;
+using MiniBank.UnitTests.Application.Fixtures;
+using Moq;
 
 namespace MiniBank.UnitTests.Application.Users.Queries;
 
-public class GetUserByIdTests
+public class GetUserByIdTests : IClassFixture<AppDbContextFixture>
 {
-    private readonly Mock<IUserRepository> _repositoryMock;
+    private readonly AppDbContext _dbContext;
     private readonly Mock<ILogger<GetUserByIdHandler>> _loggerMock;
     private readonly GetUserByIdHandler _handler;
 
-    public GetUserByIdTests()
+    public GetUserByIdTests(AppDbContextFixture fixture)
     {
-        _repositoryMock = new Mock<IUserRepository>();
+        _dbContext = fixture.DbContext;
         _loggerMock = new Mock<ILogger<GetUserByIdHandler>>();
-
-        _handler = new GetUserByIdHandler(_repositoryMock.Object, _loggerMock.Object);
+        _handler = new GetUserByIdHandler(_dbContext, _loggerMock.Object);
     }
 
     [Fact]
@@ -27,10 +27,8 @@ public class GetUserByIdTests
         // Arrange
         int userId = 1;
         var user = new User("John Doe", "12345678900", "john@example.com", "hashedPassword", UserType.Common);
-
-        _repositoryMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(user);
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
         var query = new GetUserByIdQuery(userId);
 
@@ -41,7 +39,6 @@ public class GetUserByIdTests
         Assert.NotNull(result);
         Assert.Equal(user.Id, result.Id);
         Assert.Equal(user.FullName, result.FullName);
-        _repositoryMock.Verify(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -49,9 +46,6 @@ public class GetUserByIdTests
     {
         // Arrange
         int userId = 1;
-        _repositoryMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
 
         var query = new GetUserByIdQuery(userId);
 
