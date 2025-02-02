@@ -6,7 +6,7 @@ namespace MiniBank.UnitTests.Domain;
 public class TransactionTests
 {
     [Fact]
-    public void ValidateTransaction_ShouldThrowException_WhenAmountIsInvalid()
+    public void CreateTransaction_ShouldThrowException_WhenAmountIsInvalid()
     {
         // Arrange
         var payer = new User("Payer", "12345678901", "payer@example.com", "passwordHash", UserType.Common);
@@ -35,6 +35,18 @@ public class TransactionTests
         Assert.Equal(payee.Id, transaction.PayeeId);
         Assert.Equal(50, transaction.Value);
         Assert.Equal(TransactionStatus.Pending, transaction.Status);
+    }
+
+    [Fact]
+    public void CreateTransaction_ShouldThrowException_WhenPayerAndPayeeAreSame()
+    {
+        // Arrange
+        var payer = new User("John Doe", "12345678901", "john@example.com", "passwordHash", UserType.Common);
+        var payee = new User("John Doe", "12345678901", "john@example.com", "passwordHash", UserType.Common);
+
+        // Act & Assert
+        AppException exception = Assert.Throws<AppException>(() => new Transaction(payer, payee, 100));
+        Assert.Equal(DomainErrors.Transaction.SamePayerAndPayee, exception.Message);
     }
 
     [Fact]

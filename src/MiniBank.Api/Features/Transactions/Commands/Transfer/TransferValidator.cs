@@ -12,5 +12,9 @@ internal sealed class TransferValidator : AbstractValidator<TransferCommand>
 
         RuleFor(cmd => cmd.Payee)
             .NotEmpty().WithMessage("Payee ID must be provided.");
+
+        RuleFor(cmd => new { cmd.Payer, cmd.Payee })
+            .Must(x => x.Payer != x.Payee)
+            .WithMessage("The payer and the payee cannot be the same person.");
     }
 }

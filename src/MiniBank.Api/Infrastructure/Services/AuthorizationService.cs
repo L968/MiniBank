@@ -6,7 +6,7 @@ internal class AuthorizationService(HttpClient httpClient) : IAuthorizationServi
 
     public async Task<bool> IsTransactionAuthorizedAsync()
     {
-        var requestUri = new Uri("v2/authorize", UriKind.Relative);
+        var requestUri = new Uri("api/v2/authorize", UriKind.Relative);
 
         HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
 

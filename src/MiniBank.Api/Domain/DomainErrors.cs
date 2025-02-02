@@ -15,5 +15,6 @@ internal static class DomainErrors
         public const string OnlyPendingTransactionsCanBeProcessed = "Only pending transactions can be processed.";
         public const string OnlyPendingTransactionsCanFail = "Only pending transactions can fail.";
         public const string OnlyCompletedTransactionsCanBeReverted = "Only completed transactions can be reverted.";
+        public const string SamePayerAndPayee = "The payer and the payee cannot be the same person.";
     }
 }

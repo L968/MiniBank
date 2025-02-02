@@ -8,5 +8,6 @@ internal sealed record GetTransactionsByUserIdResponse(
     int PayeeId,
     decimal Value,
     DateTime Timestamp,
-    TransactionStatus Status
+    TransactionStatus Status,
+    string Message
 );

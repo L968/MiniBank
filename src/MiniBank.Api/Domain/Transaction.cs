@@ -22,6 +22,11 @@ internal sealed class Transaction
             throw new AppException(DomainErrors.Transaction.InvalidValue);
         }
 
+        if (payer.Id == payee.Id)
+        {
+            throw new AppException(DomainErrors.Transaction.SamePayerAndPayee);
+        }
+
         Id = Guid.CreateVersion7();
         PayerId = payer.Id;
         PayeeId = payee.Id;

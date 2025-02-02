@@ -23,7 +23,8 @@ internal sealed class GetTransactionsByUserIdHandler(
             t.PayeeId,
             t.Value,
             t.Timestamp,
-            t.Status
+            t.Status,
+            t.Message
         ));
     }
 }
