@@ -20,6 +20,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aspire", "aspire", "{A005B544-E8C4-49D4-B109-FDAAA4C4A378}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniBank.Aspire.AppHost", "aspire\MiniBank.Aspire\MiniBank.Aspire.AppHost\MiniBank.Aspire.AppHost.csproj", "{9D8557DE-9D68-405C-A422-2B9F41363166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniBank.Aspire.ServiceDefaults", "aspire\MiniBank.Aspire\MiniBank.Aspire.ServiceDefaults\MiniBank.Aspire.ServiceDefaults.csproj", "{9A0B6D52-3AF5-4652-80E4-CF9212D614D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniBank.MigrationService", "src\MiniBank.MigrationService\MiniBank.MigrationService.csproj", "{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +46,18 @@ Global
 		{37E6B560-A68C-4AE0-96DA-9040BB643A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37E6B560-A68C-4AE0-96DA-9040BB643A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37E6B560-A68C-4AE0-96DA-9040BB643A5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D8557DE-9D68-405C-A422-2B9F41363166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D8557DE-9D68-405C-A422-2B9F41363166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D8557DE-9D68-405C-A422-2B9F41363166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D8557DE-9D68-405C-A422-2B9F41363166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A0B6D52-3AF5-4652-80E4-CF9212D614D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A0B6D52-3AF5-4652-80E4-CF9212D614D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A0B6D52-3AF5-4652-80E4-CF9212D614D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A0B6D52-3AF5-4652-80E4-CF9212D614D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +65,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0654141D-9B26-4AF0-941A-C9BE067073B1} = {1F81BD05-46BA-4053-A716-107129364218}
 		{64CB5EDD-D8AC-4A3C-9426-861859930F87} = {73C7F6B0-3C0F-4529-B8A3-EF806F809F78}
+		{9D8557DE-9D68-405C-A422-2B9F41363166} = {A005B544-E8C4-49D4-B109-FDAAA4C4A378}
+		{9A0B6D52-3AF5-4652-80E4-CF9212D614D7} = {A005B544-E8C4-49D4-B109-FDAAA4C4A378}
+		{E26E4DAC-5128-44B4-A42A-8C1D40AF9F66} = {1F81BD05-46BA-4053-A716-107129364218}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD382CF2-FC23-45BC-8B69-28D7E62F5A4A}

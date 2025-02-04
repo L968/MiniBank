@@ -41,11 +41,7 @@ internal static class ApplicationServiceExtensions
 
             config.UsingRabbitMq((context, configurator) =>
             {
-                configurator.Host(new Uri(Config.RabbitMQConnectionString), host =>
-                {
-                    host.Username("guest");
-                    host.Password("guest");
-                });
+                configurator.Host(Config.RabbitMQConnectionString);
 
                 configurator.ConfigureEndpoints(context);
             });

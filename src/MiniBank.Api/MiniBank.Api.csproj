@@ -29,4 +29,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\aspire\MiniBank.Aspire\MiniBank.Aspire.ServiceDefaults\MiniBank.Aspire.ServiceDefaults.csproj" />
+  </ItemGroup>
+
 </Project>
