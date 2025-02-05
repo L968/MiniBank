@@ -10,20 +10,18 @@ internal sealed class CreateUserHandler(
 {
     public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        User existingUserByCpfCnpj = await dbContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.CpfCnpj == request.CpfCnpj, cancellationToken);
+        bool isCpfCnpjAlreadyRegistered = await dbContext.Users
+            .AnyAsync(u => u.CpfCnpj == request.CpfCnpj, cancellationToken);
 
-        if (existingUserByCpfCnpj is not null)
+        if (isCpfCnpjAlreadyRegistered)
         {
             throw new AppException($"A user with CPF/CNPJ \"{request.CpfCnpj}\" already exists");
         }
 
-        User existingUserByEmail = await dbContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+        bool isEmailAlreadyRegistered = await dbContext.Users
+            .AnyAsync(u => u.Email == request.Email, cancellationToken);
 
-        if (existingUserByEmail is not null)
+        if (isEmailAlreadyRegistered)
         {
             throw new AppException($"A user with email \"{request.Email}\" already exists");
         }
