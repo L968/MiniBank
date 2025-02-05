@@ -30,7 +30,7 @@ internal sealed class TransferHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var transactionEvent = new TransactionEvent(transaction.Id);
-        await rabbitMqService.PublishAsync(transactionEvent, cancellationToken);
+        await rabbitMqService.PublishAsync(transactionEvent, CancellationToken.None);
 
         logger.LogInformation("Transaction published successfully: TransactionId: {TransactionId}", transaction.Id);
 
