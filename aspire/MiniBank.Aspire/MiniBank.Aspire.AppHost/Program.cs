@@ -4,7 +4,6 @@ IResourceBuilder<ParameterResource> mysqlPassword = builder.AddParameter("mysqlP
 
 IResourceBuilder<MySqlServerResource> mysql = builder.AddMySql("minibank-mysql", password: mysqlPassword)
     .WithImageTag("9.2.0")
-    .WithPhpMyAdmin()
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
