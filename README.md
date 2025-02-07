@@ -10,16 +10,17 @@ MiniBank API is a simple banking system that allows users to perform transaction
 
 ## Technologies Used
 - .NET 9
+- .NET Aspire  
 - Entity Framework Core
 - Mediator Pattern (MediatR)
-- Docker & Docker Compose
-- PostgreSQL
-- xUnit & Moq for testing
+- Docker
+- MySQL
+- xUnit, Moq & Bogus for testing
 
 ## Setup and Running the Project
 ### Prerequisites
 - [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-- [Docker & Docker Compose](https://www.docker.com/get-started)
+- [Docker](https://www.docker.com/get-started)
 
 ### Running the Application
 1. Clone the repository:
@@ -27,17 +28,9 @@ MiniBank API is a simple banking system that allows users to perform transaction
    git clone https://github.com/L968/MiniBank.git
    cd MiniBank
    ```
-2. Start the services with Docker Compose:
+2. Run the application using .NET Aspire:
    ```sh
-   docker-compose up -d
-   ```
-3. Apply database migrations:
-   ```sh
-   dotnet ef database update
-   ```
-4. Run the application:
-   ```sh
-   dotnet run --project MiniBank.Api
+   dotnet run --project MiniBank.AppHost
    ```
 
 ## Running Tests
@@ -46,11 +39,9 @@ To run unit tests, execute:
  dotnet test
 ```
 
-## API Endpoints
-Once the application is running, you can access the API via Swagger:
-```
-http://localhost:5000/swagger/index.html
-```
+## API Endpoints  
+Once the application is running, you can access the API via Scalar in the **MiniBank.Api** project from the .NET Aspire dashboard.  
+
 
 ## Contributing
 Feel free to open issues and pull requests to improve the project!
